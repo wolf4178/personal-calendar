@@ -2,13 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Defender - Galaga Style Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Space Defender - Mobile</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: none;
         }
         
         body {
@@ -21,15 +27,17 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
             overflow: hidden;
+            padding: 10px;
         }
         
         .game-container {
             position: relative;
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
+            width: 100%;
+            max-width: 500px;
+            height: 70vh;
+            margin: 10px auto;
             border: 3px solid #4a47e0;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(74, 71, 224, 0.5);
         }
@@ -37,47 +45,51 @@
         #gameCanvas {
             background: #000;
             display: block;
+            width: 100%;
+            height: 100%;
         }
         
         .game-ui {
             display: flex;
             justify-content: space-between;
-            width: 800px;
-            margin-bottom: 15px;
-            padding: 10px 20px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 10px;
+            padding: 10px 15px;
             background: rgba(0, 0, 0, 0.6);
-            border-radius: 8px;
+            border-radius: 10px;
             border: 2px solid #4a47e0;
+            font-size: 1.2rem;
         }
         
         .score-container, .lives-container {
-            font-size: 1.5rem;
             font-weight: bold;
             text-shadow: 0 0 5px #00ffff;
         }
         
         .controls {
-            margin-top: 15px;
+            margin-top: 10px;
             text-align: center;
             background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            border-radius: 8px;
+            padding: 10px;
+            border-radius: 10px;
             border: 2px solid #4a47e0;
-            width: 800px;
+            width: 100%;
+            max-width: 500px;
+            font-size: 0.9rem;
         }
         
         .controls p {
-            margin: 5px 0;
-            font-size: 1.1rem;
+            margin: 3px 0;
         }
         
         .game-title {
-            font-size: 3rem;
+            font-size: 2rem;
             margin-bottom: 10px;
             text-align: center;
             text-shadow: 0 0 10px #4a47e0, 0 0 20px #4a47e0;
             color: #fff;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         
         .screen {
@@ -92,24 +104,28 @@
             align-items: center;
             background: rgba(0, 0, 0, 0.85);
             z-index: 10;
+            padding: 20px;
+            text-align: center;
         }
         
         .btn {
             background: linear-gradient(to bottom, #4a47e0, #302b63);
             color: white;
             border: none;
-            padding: 12px 30px;
+            padding: 15px 35px;
             font-size: 1.2rem;
             border-radius: 30px;
             cursor: pointer;
             margin-top: 20px;
             transition: all 0.3s;
             box-shadow: 0 0 15px rgba(74, 71, 224, 0.7);
+            width: 80%;
+            max-width: 250px;
         }
         
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(74, 71, 224, 0.9);
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 10px rgba(74, 71, 224, 0.5);
         }
         
         .hidden {
@@ -117,21 +133,22 @@
         }
         
         .instructions {
-            max-width: 700px;
+            max-width: 90%;
             text-align: center;
             margin-bottom: 20px;
-            line-height: 1.6;
+            line-height: 1.5;
+            font-size: 1rem;
         }
         
         .game-over {
-            font-size: 4rem;
+            font-size: 2.5rem;
             color: #ff4d4d;
             text-shadow: 0 0 10px #ff0000;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .final-score {
-            font-size: 2rem;
+            font-size: 1.5rem;
             margin-bottom: 20px;
         }
         
@@ -147,6 +164,99 @@
             background: white;
             border-radius: 50%;
         }
+        
+        /* Touch controls */
+        .touch-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 5;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #4a47e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .control-btn:active {
+            background: rgba(74, 71, 224, 0.5);
+            transform: scale(0.9);
+        }
+        
+        .fire-btn {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 50, 50, 0.3);
+            border: 2px solid #ff4d4d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            color: white;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .fire-btn:active {
+            background: rgba(255, 0, 0, 0.5);
+            transform: scale(0.9);
+        }
+        
+        /* Mobile-specific optimizations */
+        @media (max-height: 700px) {
+            .game-container {
+                height: 65vh;
+            }
+            
+            .touch-controls {
+                bottom: 10px;
+            }
+            
+            .control-btn {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .fire-btn {
+                width: 70px;
+                height: 70px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .game-title {
+                font-size: 1.7rem;
+            }
+            
+            .game-ui {
+                font-size: 1rem;
+            }
+            
+            .control-btn {
+                width: 55px;
+                height: 55px;
+            }
+            
+            .fire-btn {
+                width: 65px;
+                height: 65px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -159,13 +269,20 @@
     
     <div class="game-container">
         <div class="stars" id="stars"></div>
-        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Touch Controls -->
+        <div class="touch-controls">
+            <div class="control-btn" id="leftBtn">←</div>
+            <div class="fire-btn" id="fireBtn">FIRE</div>
+            <div class="control-btn" id="rightBtn">→</div>
+        </div>
         
         <div id="startScreen" class="screen">
             <h2>SPACE DEFENDER</h2>
             <div class="instructions">
                 <p>Defend Earth from alien invaders!</p>
-                <p>Use ← → keys to move and SPACEBAR to shoot.</p>
+                <p>Touch LEFT/RIGHT to move and FIRE to shoot.</p>
                 <p>Destroy enemy formations and avoid their attacks.</p>
                 <p>Survive as long as possible and achieve the highest score!</p>
             </div>
@@ -180,7 +297,7 @@
     </div>
     
     <div class="controls">
-        <p>CONTROLS: ← → Arrow Keys to Move | SPACEBAR to Shoot</p>
+        <p>Touch LEFT/RIGHT to Move | Touch FIRE to Shoot</p>
         <p>Destroy enemies and avoid their attacks to score points!</p>
     </div>
 
@@ -197,14 +314,33 @@
         const livesElement = document.getElementById('lives');
         const starsContainer = document.getElementById('stars');
         
+        // Touch controls
+        const leftBtn = document.getElementById('leftBtn');
+        const rightBtn = document.getElementById('rightBtn');
+        const fireBtn = document.getElementById('fireBtn');
+        
+        // Set canvas size based on container
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
         let gameActive = false;
         let score = 0;
         let lives = 3;
+        let playerMoving = 0; // -1 for left, 0 for stop, 1 for right
+        let autoFire = false;
+        let lastFireTime = 0;
+        const fireRate = 300; // ms between shots
         
         // Create background stars
         function createStars() {
             starsContainer.innerHTML = '';
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 80; i++) {
                 const star = document.createElement('div');
                 star.classList.add('star');
                 star.style.width = Math.random() * 2 + 'px';
@@ -218,12 +354,19 @@
         
         // Player object
         const player = {
-            x: canvas.width / 2 - 25,
-            y: canvas.height - 80,
-            width: 50,
-            height: 60,
-            speed: 7,
+            x: 0,
+            y: 0,
+            width: 0,
+            height: 0,
+            speed: 0,
             color: '#4a47e0',
+            init: function() {
+                this.width = canvas.width * 0.1;
+                this.height = this.width * 1.2;
+                this.x = canvas.width / 2 - this.width / 2;
+                this.y = canvas.height - this.height - 20;
+                this.speed = canvas.width * 0.01;
+            },
             draw: function() {
                 // Draw player ship
                 ctx.fillStyle = this.color;
@@ -237,7 +380,7 @@
                 ctx.fill();
                 
                 // Ship wings
-                ctx.fillRect(this.x - 10, this.y + this.height - 40, 70, 10);
+                ctx.fillRect(this.x - 10, this.y + this.height - 40, this.width + 20, 10);
                 
                 // Ship details
                 ctx.fillStyle = '#00ffff';
@@ -254,11 +397,11 @@
                 ctx.fillStyle = gradient;
                 ctx.fillRect(this.x + this.width / 2 - 15, this.y + this.height, 30, 25);
             },
-            move: function(direction) {
-                if (direction === 'left' && this.x > 0) {
+            update: function() {
+                if (playerMoving === -1 && this.x > 0) {
                     this.x -= this.speed;
                 }
-                if (direction === 'right' && this.x + this.width < canvas.width) {
+                if (playerMoving === 1 && this.x + this.width < canvas.width) {
                     this.x += this.speed;
                 }
             }
@@ -273,54 +416,76 @@
         // Enemy bullets array
         let enemyBullets = [];
         
-        // Key state tracking
-        const keys = {
-            ArrowLeft: false,
-            ArrowRight: false,
-            Space: false
-        };
-        
-        // Event listeners
-        window.addEventListener('keydown', (e) => {
-            if (e.code in keys) {
-                keys[e.code] = true;
-                e.preventDefault();
-            }
+        // Touch event handlers
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            playerMoving = -1;
         });
         
-        window.addEventListener('keyup', (e) => {
-            if (e.code in keys) {
-                keys[e.code] = false;
-                
-                // Fire bullet when spacebar is released
-                if (e.code === 'Space' && gameActive) {
-                    fireBullet();
-                }
-            }
+        leftBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            playerMoving = 0;
         });
+        
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            playerMoving = 1;
+        });
+        
+        rightBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            playerMoving = 0;
+        });
+        
+        fireBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            autoFire = true;
+        });
+        
+        fireBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            autoFire = false;
+        });
+        
+        // Also support mousedown for devices that support both
+        leftBtn.addEventListener('mousedown', () => playerMoving = -1);
+        leftBtn.addEventListener('mouseup', () => playerMoving = 0);
+        leftBtn.addEventListener('mouseleave', () => playerMoving = 0);
+        
+        rightBtn.addEventListener('mousedown', () => playerMoving = 1);
+        rightBtn.addEventListener('mouseup', () => playerMoving = 0);
+        rightBtn.addEventListener('mouseleave', () => playerMoving = 0);
+        
+        fireBtn.addEventListener('mousedown', () => autoFire = true);
+        fireBtn.addEventListener('mouseup', () => autoFire = false);
+        fireBtn.addEventListener('mouseleave', () => autoFire = false);
         
         // Fire a bullet
         function fireBullet() {
-            bullets.push({
-                x: player.x + player.width / 2 - 2,
-                y: player.y,
-                width: 4,
-                height: 15,
-                speed: 10,
-                color: '#00ffff'
-            });
+            const currentTime = Date.now();
+            if (currentTime - lastFireTime > fireRate) {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2,
+                    y: player.y,
+                    width: 4,
+                    height: 15,
+                    speed: canvas.height * 0.015,
+                    color: '#00ffff'
+                });
+                lastFireTime = currentTime;
+            }
         }
         
         // Create enemies
         function createEnemies() {
             enemies = [];
-            const rows = 4;
-            const cols = 8;
-            const enemyWidth = 40;
-            const enemyHeight = 40;
-            const padding = 20;
+            const rows = 3;
+            const cols = 6;
+            const enemyWidth = canvas.width * 0.08;
+            const enemyHeight = enemyWidth;
+            const padding = canvas.width * 0.02;
             const offsetX = (canvas.width - (cols * (enemyWidth + padding))) / 2;
-            const offsetY = 80;
+            const offsetY = canvas.height * 0.1;
             
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
@@ -329,9 +494,9 @@
                         y: offsetY + row * (enemyHeight + padding),
                         width: enemyWidth,
                         height: enemyHeight,
-                        speed: 1,
+                        speed: canvas.width * 0.0015,
                         direction: 1,
-                        color: row === 0 ? '#ff4d4d' : row === 1 ? '#ff9933' : row === 2 ? '#ffff33' : '#33ff33',
+                        color: row === 0 ? '#ff4d4d' : row === 1 ? '#ff9933' : '#ffff33',
                         alive: true
                     });
                 }
@@ -346,7 +511,7 @@
             const columns = {};
             enemies.forEach(enemy => {
                 if (enemy.alive) {
-                    const col = Math.floor(enemy.x / 50);
+                    const col = Math.floor(enemy.x / (canvas.width / 6));
                     if (!columns[col] || enemy.y > columns[col].y) {
                         columns[col] = enemy;
                     }
@@ -364,7 +529,7 @@
                     y: shooter.y + shooter.height,
                     width: 4,
                     height: 15,
-                    speed: 5,
+                    speed: canvas.height * 0.01,
                     color: '#ff4d4d'
                 });
             }
@@ -426,8 +591,12 @@
             if (!gameActive) return;
             
             // Move player
-            if (keys.ArrowLeft) player.move('left');
-            if (keys.ArrowRight) player.move('right');
+            player.update();
+            
+            // Auto fire if fire button is pressed
+            if (autoFire) {
+                fireBullet();
+            }
             
             // Move bullets
             bullets.forEach((bullet, index) => {
@@ -462,7 +631,7 @@
                 enemies.forEach(enemy => {
                     if (enemy.alive) {
                         enemy.direction *= -1;
-                        enemy.y += 20;
+                        enemy.y += canvas.height * 0.03;
                     }
                 });
             }
@@ -571,7 +740,10 @@
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
             
+            // Initialize player and enemies based on current canvas size
+            player.init();
             createEnemies();
+            
             gameLoop();
         }
         
@@ -586,7 +758,12 @@
         startBtn.addEventListener('click', startGame);
         restartBtn.addEventListener('click', startGame);
         
-        // Initialize stars
+        // Prevent context menu on long press
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+        
+        // Initialize stars and start screen
         createStars();
     </script>
 </body>
